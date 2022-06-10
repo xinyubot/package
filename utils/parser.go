@@ -7,8 +7,8 @@ import (
 )
 
 // Regexp Pattern definition for:
-// 	1. Structured Type
-// 	2. Nested Structured Type
+// 	1. Structured Type: array, map(object)
+// 	2. Nested Structured Type: array of map(array of object), map of array(object of which each fields is an array).
 var (
 	reMap   = regexp.MustCompile(`^([a-zA-Z_0-9]+)\[([a-zA-Z_0-9]+)\]$`)
 	reArray = regexp.MustCompile(`^([a-zA-Z_0-9]+)\[([0-9]+)\]$`)
@@ -20,8 +20,8 @@ var (
 // ParseFormData parses http request's FormData and returns a map[string]any.
 // 	1. Notice that this is a PRELIMIARY implementation of a FormData parser,
 // 		and `Content-Type:application/json` is a way better alternative.
-// 	2. For structured type, parser ONLY supports array, map(objcet), array of map(array of object),
-//		and map of array(object of which each fields is an array).
+// 	2. For structured type, parser ONLY supports array, map(objcet),
+//		array of map(array of object), and map of array(object of which each fields is an array).
 //		Allow letter, number, and underscore (`[a-zA-Z_0-9]+`) for the map key.
 // 		Any other characters will cause the structured type being parsed as a basic type.
 //	3. Any further nested structured type will also get parsed, however as a basic type.
