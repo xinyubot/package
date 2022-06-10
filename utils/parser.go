@@ -38,86 +38,70 @@ func ParseFormData(r *http.Request) (ret map[string]any) {
 		matchesArrayOfMap := reArrayOfMap.FindStringSubmatch(key)
 		matchesMapOfArray := reMapOfArray.FindStringSubmatch(key)
 
-		// match for one and only one pattern
 		switch {
 		case len(matchesMapOfArray) == 4:
-			mmkey := matchesMapOfArray[1] // main map key (ret)
-			smkey := matchesMapOfArray[2] // sub map key
+			mainMapKey := matchesMapOfArray[1]
+			subMapKey := matchesMapOfArray[2]
 			index, _ := strconv.Atoi(matchesMapOfArray[3])
-			// init
 			var result map[string][]string
-			if ret[mmkey] != nil {
-				result = ret[mmkey].(map[string][]string)
+			if ret[mainMapKey] != nil {
+				result = ret[mainMapKey].(map[string][]string)
 			} else {
 				result = make(map[string][]string)
 			}
-			// populate
-			for index >= len(result[smkey]) {
-				if result[smkey] == nil {
-					result[smkey] = make([]string, index)
+			for index >= len(result[subMapKey]) {
+				if result[subMapKey] == nil {
+					result[subMapKey] = make([]string, index)
 				}
-				result[smkey] = append(result[smkey], "")
+				result[subMapKey] = append(result[subMapKey], "")
 			}
-			// save
-			result[smkey][index] = r.Form[key][0]
-			ret[mmkey] = result
+			result[subMapKey][index] = r.Form[key][0]
+			ret[mainMapKey] = result
 
-		// matched as array of map (array of object)
 		case len(matchesArrayOfMap) == 4:
-			mmkey := matchesArrayOfMap[1] // main map key (ret)
+			mainMapKey := matchesArrayOfMap[1]
 			index, _ := strconv.Atoi(matchesArrayOfMap[2])
-			smkey := matchesArrayOfMap[3] // sub map key
+			subMapKey := matchesArrayOfMap[3]
 
-			// init
 			var result []map[string]string
-			if ret[mmkey] != nil {
-				result = ret[mmkey].([]map[string]string)
+			if ret[mainMapKey] != nil {
+				result = ret[mainMapKey].([]map[string]string)
 			} else {
 				result = make([]map[string]string, 0)
 			}
-			// populate
 			for index >= len(result) {
 				result = append(result, map[string]string{})
 			}
-			// save
-			result[index][smkey] = r.Form[key][0]
-			ret[mmkey] = result
+			result[index][subMapKey] = r.Form[key][0]
+			ret[mainMapKey] = result
 
-		// matched as array
 		case len(matchesArray) == 3:
-			mmkey := matchesArray[1] // main map key (ret)
+			mainMapKey := matchesArray[1]
 			index, _ := strconv.Atoi(matchesArray[2])
-			// init
 			var result []string
-			if ret[mmkey] != nil {
-				result = ret[mmkey].([]string)
+			if ret[mainMapKey] != nil {
+				result = ret[mainMapKey].([]string)
 			} else {
 				result = make([]string, 0)
 			}
-			// populate
 			for index >= len(result) {
 				result = append(result, "")
 			}
-			// save
 			result[index] = r.Form[key][0]
-			ret[mmkey] = result
+			ret[mainMapKey] = result
 
-		// matched as map (object)
 		case len(matchesMap) == 3:
-			mmkey := matchesMap[1] // main map key (ret)
-			smkey := matchesMap[2] // sub map key
-			// init
+			mainMapKey := matchesMap[1]
+			subMapKey := matchesMap[2]
 			var result map[string]string
-			if ret[mmkey] != nil {
-				result = ret[mmkey].(map[string]string)
+			if ret[mainMapKey] != nil {
+				result = ret[mainMapKey].(map[string]string)
 			} else {
 				result = make(map[string]string)
 			}
-			// save
-			result[smkey] = r.Form[key][0]
-			ret[mmkey] = result
+			result[subMapKey] = r.Form[key][0]
+			ret[mainMapKey] = result
 
-		// direct and basic type of k-v pairs
 		default:
 			ret[key] = r.Form[key][0]
 		}
