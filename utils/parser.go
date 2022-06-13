@@ -19,7 +19,7 @@ var (
 
 // ParseFormData parses http request's FormData and returns a map[string]any.
 // 	1. Notice that this is a PRELIMIARY implementation of a FormData parser,
-// 		and `Content-Type:application/json` is a way better alternative.
+// 		and passing parameters through `Content-Type:application/json` is a way better alternative.
 // 	2. For structured type, parser ONLY supports array, map(objcet),
 //		array of map(array of object), and map of array(object of which each fields is an array).
 //		Allow letter, number, and underscore (`[a-zA-Z_0-9]+`) for the map key.
