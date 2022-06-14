@@ -10,11 +10,11 @@ import (
 // 	1. Structured Type: array, map(object)
 // 	2. Nested Structured Type: array of map(array of object), map of array(object of which each fields is an array).
 var (
-	reMap   = regexp.MustCompile(`^([a-zA-Z_0-9]+)\[([a-zA-Z_0-9]+)\]$`)
-	reArray = regexp.MustCompile(`^([a-zA-Z_0-9]+)\[([0-9]+)\]$`)
+	reMap   = regexp.MustCompile(`^([a-zA-Z_]+)\[([a-zA-Z_]+)\]$`)
+	reArray = regexp.MustCompile(`^([a-zA-Z_]+)\[([0-9]+)\]$`)
 
-	reArrayOfMap = regexp.MustCompile(`^([a-zA-Z_0-9]+)\[([0-9]+)\]\[([a-zA-Z_0-9]+)\]$`)
-	reMapOfArray = regexp.MustCompile(`^([a-zA-Z_0-9]+)\[([a-zA-Z_0-9]+)\]\[([0-9]+)\]$`)
+	reArrayOfMap = regexp.MustCompile(`^([a-zA-Z_]+)\[([0-9]+)\]\[([a-zA-Z_]+)\]$`)
+	reMapOfArray = regexp.MustCompile(`^([a-zA-Z_]+)\[([a-zA-Z_]+)\]\[([0-9]+)\]$`)
 )
 
 // ParseFormData parses http request's FormData and returns a map[string]any.
