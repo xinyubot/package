@@ -22,7 +22,7 @@ var (
 // 		and passing parameters through `Content-Type:application/json` is a way better alternative.
 // 	2. For structured type, parser ONLY supports array, map(objcet),
 //		array of map(array of object), and map of array(object of which each fields is an array).
-//		Allow letter, number, and underscore (`[a-zA-Z_0-9]+`) for the map key.
+//		Allow letter, number, and underscore (`[a-zA-Z_]+`) for the map key.
 // 		Any other characters will cause the structured type being parsed as a basic type.
 //	3. Any further nested structured type will also get parsed, however as a basic type.
 // 		In other words, complex nested structured type MUST be passed by `Content-Type:application/json`.
