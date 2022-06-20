@@ -19,7 +19,8 @@ type keyval[K comparable, V any] struct {
 }
 
 // NewMap returns a pointer to a newly instantiated Map,
-// with the underlying map allocated with enough space to hold the specified number of elements.
+// embedding a mutex lock and
+// a underlying map allocated with enough space to hold the specified number of elements.
 func NewMap[K comparable, V any](size ...uint64) *mmap[K, V] {
 	ret := &mmap[K, V]{lock: new(sync.Mutex)}
 	switch len(size) {
@@ -39,7 +40,8 @@ func (mm *mmap[K, V]) Set(key K, value V) *mmap[K, V] {
 	return mm
 }
 
-// Get returns the value V from the mmap given a key K and a bool indicating whether the key K exists.
+// Get returns the value V from the mmap given a key K
+// and a bool indicating whether the key K exists.
 // If the key does exists, Get returns the value V, and true.
 // Otherwise Get returns the specified default value defval, and false.
 func (mm *mmap[K, V]) Get(key K, defval V) (V, bool) {
@@ -99,7 +101,8 @@ func (mm *mmap[K, V]) Values(V) []V {
 	return ret
 }
 
-// Filter filters out the K-V pairs from the mmap by the specified filtering fuction f, and returns the original mmap.
+// Filter filters out the K-V pairs from the mmap
+// by the specified filtering fuction f, and returns the original mmap.
 // f should return false if the K-V pair is desired to be removed from the mmap.
 func (mm *mmap[K, V]) Filter(f func(key K, value V) bool) *mmap[K, V] {
 	mm.lock.Lock()

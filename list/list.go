@@ -4,6 +4,7 @@ import (
 	"sync"
 )
 
+// mlist embeds a lock and a generic doubly linked list
 type mlist[V any] struct {
 	lock *sync.Mutex // to keep the Mutex-related fields and methods from being exported
 	m    *List[V]    // underlying slice that actually stores the values
@@ -16,8 +17,9 @@ func (l *mlist[V]) InitList() *List[V] {
 	return l.m.Init()
 }
 
-// NewSlice returns a pointer to a newly instantiated Slice,
-// with the underlying slice allocated with enough space to hold the specified number of elements.
+// NewList returns a pointer to a newly instantiated List,
+// embedding a mutex lock and
+// a doubly linked list by Go Authors team tweaked to fit generics.
 func NewList[V any]() *mlist[V] {
 	ret := &mlist[V]{lock: new(sync.Mutex), m: new(List[V]).Init()}
 	return ret
