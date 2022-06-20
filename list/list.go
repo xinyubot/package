@@ -4,13 +4,13 @@ import (
 	"sync"
 )
 
-type mList[V any] struct {
+type mlist[V any] struct {
 	lock *sync.Mutex // to keep the Mutex-related fields and methods from being exported
 	m    *List[V]    // underlying slice that actually stores the values
 }
 
 // Init initializes or clears list l.
-func (l *mList[V]) InitList() *List[V] {
+func (l *mlist[V]) InitList() *List[V] {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	return l.m.Init()
@@ -18,56 +18,56 @@ func (l *mList[V]) InitList() *List[V] {
 
 // NewSlice returns a pointer to a newly instantiated Slice,
 // with the underlying slice allocated with enough space to hold the specified number of elements.
-func NewList[V any]() *mList[V] {
-	ret := &mList[V]{lock: new(sync.Mutex), m: new(List[V]).Init()}
+func NewList[V any]() *mlist[V] {
+	ret := &mlist[V]{lock: new(sync.Mutex), m: new(List[V]).Init()}
 	return ret
 }
 
 // Len returns the number of elements of list l.
 // The complexity is O(1).
-func (l *mList[V]) Len() int {
+func (l *mlist[V]) Len() int {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	return l.m.Len()
 }
 
 // Front returns the first element of list l or nil if the list is empty.
-func (l *mList[V]) Front() *Element[V] {
+func (l *mlist[V]) Front() *Element[V] {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	return l.m.Front()
 }
 
 // Back returns the last element of list l or nil if the list is empty.
-func (l *mList[V]) Back() *Element[V] {
+func (l *mlist[V]) Back() *Element[V] {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	return l.m.Back()
 }
 
 // PushFront inserts a new element e with value v at the front of list l and returns e.
-func (l *mList[V]) PushFront(value V) {
+func (l *mlist[V]) PushFront(value V) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	l.m.PushFront(value)
 }
 
 // PushBack inserts a new element e with value v at the back of list l and returns e.
-func (l *mList[V]) PushBack(value V) {
+func (l *mlist[V]) PushBack(value V) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	l.m.PushBack(value)
 }
 
 // PushBackList adds a list of type V to the end of the list l.
-func (l *mList[V]) PushFrontList(list *List[V]) {
+func (l *mlist[V]) PushFrontList(list *List[V]) {
 	l.lock.Lock()
 	l.m.PushFrontList(list)
 	l.lock.Unlock()
 }
 
 // PushBackList adds a list of type V to the end of the list l.
-func (l *mList[V]) PushBackList(list *List[V]) {
+func (l *mlist[V]) PushBackList(list *List[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	l.m.PushBackList(list)
@@ -76,7 +76,7 @@ func (l *mList[V]) PushBackList(list *List[V]) {
 // Remove removes e from l if e is an element of list l.
 // It returns the element value e.Value.
 // The element must not be nil.
-func (l *mList[V]) Remove(ele *Element[V]) {
+func (l *mlist[V]) Remove(ele *Element[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	l.m.Remove(ele)
@@ -85,7 +85,7 @@ func (l *mList[V]) Remove(ele *Element[V]) {
 // InsertBefore inserts a new element e with value v immediately before mark and returns e.
 // If mark is not an element of l, the list is not modified.
 // The mark must not be nil.
-func (l *mList[V]) InsertBefore(v V, mark *Element[V]) *Element[V] {
+func (l *mlist[V]) InsertBefore(v V, mark *Element[V]) *Element[V] {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	return l.m.InsertBefore(v, mark)
@@ -94,7 +94,7 @@ func (l *mList[V]) InsertBefore(v V, mark *Element[V]) *Element[V] {
 // InsertAfter inserts a new element e with value v immediately after mark and returns e.
 // If mark is not an element of l, the list is not modified.
 // The mark must not be nil.
-func (l *mList[V]) InsertAfter(v V, mark *Element[V]) *Element[V] {
+func (l *mlist[V]) InsertAfter(v V, mark *Element[V]) *Element[V] {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	return l.m.InsertAfter(v, mark)
@@ -103,7 +103,7 @@ func (l *mList[V]) InsertAfter(v V, mark *Element[V]) *Element[V] {
 // MoveToFront moves element e to the front of list l.
 // If e is not an element of l, the list is not modified.
 // The element must not be nil.
-func (l *mList[V]) MoveToFront(e *Element[V]) {
+func (l *mlist[V]) MoveToFront(e *Element[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	l.m.MoveToFront(e)
@@ -112,7 +112,7 @@ func (l *mList[V]) MoveToFront(e *Element[V]) {
 // MoveToBack moves element e to the back of list l.
 // If e is not an element of l, the list is not modified.
 // The element must not be nil.
-func (l *mList[V]) MoveToBack(e *Element[V]) {
+func (l *mlist[V]) MoveToBack(e *Element[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	l.m.MoveToBack(e)
@@ -121,7 +121,7 @@ func (l *mList[V]) MoveToBack(e *Element[V]) {
 // MoveBefore moves element e to its new position before mark.
 // If e or mark is not an element of l, or e == mark, the list is not modified.
 // The element and mark must not be nil.
-func (l *mList[V]) MoveBefore(e, mark *Element[V]) {
+func (l *mlist[V]) MoveBefore(e, mark *Element[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	l.m.MoveBefore(e, mark)
@@ -130,7 +130,7 @@ func (l *mList[V]) MoveBefore(e, mark *Element[V]) {
 // MoveAfter moves element e to its new position after mark.
 // If e or mark is not an element of l, or e == mark, the list is not modified.
 // The element and mark must not be nil.
-func (l *mList[V]) MoveAfter(e, mark *Element[V]) {
+func (l *mlist[V]) MoveAfter(e, mark *Element[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	l.m.MoveAfter(e, mark)
