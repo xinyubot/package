@@ -18,14 +18,15 @@ type keyval[K comparable, V any] struct {
 	Value V
 }
 
-// NewMap returns a pointer to a newly instantiated mMap,
+// NewMap returns a pointer to a newly instantiated Map,
 // with the underlying map allocated with enough space to hold the specified number of elements.
 func NewMap[K comparable, V any](size ...uint64) *mMap[K, V] {
 	ret := &mMap[K, V]{lock: new(sync.Mutex)}
-	if size != nil {
-		ret.m = make(map[K]V, size[0])
-	} else {
+	switch len(size) {
+	case 0:
 		ret.m = make(map[K]V)
+	default:
+		ret.m = make(map[K]V, size[0])
 	}
 	return ret
 }
