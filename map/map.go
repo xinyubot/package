@@ -140,3 +140,10 @@ func (mm *mmap[K, V]) ToSlice() []keyval[K, V] {
 	mm.lock.Unlock()
 	return ret
 }
+
+// Print prints the contents of the map.
+func (mm *mmap[K, V]) Print() {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
+	fmt.Println(mm.m)
+}

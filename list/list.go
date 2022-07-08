@@ -1,27 +1,31 @@
 package mlist
 
 import (
+	"fmt"
+	"reflect"
+	"sort"
+	"strings"
 	"sync"
 )
 
 // mlist embeds a lock and a generic doubly linked list
 type mlist[V any] struct {
 	lock *sync.Mutex // to keep the Mutex-related fields and methods from being exported
-	m    *List[V]    // underlying slice that actually stores the values
+	dll  *List[V]    // underlying slice that actually stores the values
 }
 
 // Init initializes or clears list l.
 func (l *mlist[V]) InitList() *List[V] {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	return l.m.Init()
+	return l.dll.Init()
 }
 
 // NewList returns a pointer to a newly instantiated List,
 // embedding a mutex lock and
 // a doubly linked list by Go Authors team tweaked to fit generics.
 func NewList[V any]() *mlist[V] {
-	ret := &mlist[V]{lock: new(sync.Mutex), m: new(List[V]).Init()}
+	ret := &mlist[V]{lock: new(sync.Mutex), dll: new(List[V]).Init()}
 	return ret
 }
 
@@ -30,41 +34,41 @@ func NewList[V any]() *mlist[V] {
 func (l *mlist[V]) Len() int {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	return l.m.Len()
+	return l.dll.Len()
 }
 
 // Front returns the first element of list l or nil if the list is empty.
 func (l *mlist[V]) Front() *Element[V] {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	return l.m.Front()
+	return l.dll.Front()
 }
 
 // Back returns the last element of list l or nil if the list is empty.
 func (l *mlist[V]) Back() *Element[V] {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	return l.m.Back()
+	return l.dll.Back()
 }
 
 // PushFront inserts a new element e with value v at the front of list l and returns e.
 func (l *mlist[V]) PushFront(value V) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	l.m.PushFront(value)
+	l.dll.PushFront(value)
 }
 
 // PushBack inserts a new element e with value v at the back of list l and returns e.
 func (l *mlist[V]) PushBack(value V) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	l.m.PushBack(value)
+	l.dll.PushBack(value)
 }
 
 // PushBackList adds a list of type V to the end of the list l.
 func (l *mlist[V]) PushFrontList(list *List[V]) {
 	l.lock.Lock()
-	l.m.PushFrontList(list)
+	l.dll.PushFrontList(list)
 	l.lock.Unlock()
 }
 
@@ -72,7 +76,7 @@ func (l *mlist[V]) PushFrontList(list *List[V]) {
 func (l *mlist[V]) PushBackList(list *List[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	l.m.PushBackList(list)
+	l.dll.PushBackList(list)
 }
 
 // Remove removes e from l if e is an element of list l.
@@ -81,7 +85,7 @@ func (l *mlist[V]) PushBackList(list *List[V]) {
 func (l *mlist[V]) Remove(ele *Element[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	l.m.Remove(ele)
+	l.dll.Remove(ele)
 }
 
 // InsertBefore inserts a new element e with value v immediately before mark and returns e.
@@ -90,7 +94,7 @@ func (l *mlist[V]) Remove(ele *Element[V]) {
 func (l *mlist[V]) InsertBefore(v V, mark *Element[V]) *Element[V] {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	return l.m.InsertBefore(v, mark)
+	return l.dll.InsertBefore(v, mark)
 }
 
 // InsertAfter inserts a new element e with value v immediately after mark and returns e.
@@ -99,7 +103,7 @@ func (l *mlist[V]) InsertBefore(v V, mark *Element[V]) *Element[V] {
 func (l *mlist[V]) InsertAfter(v V, mark *Element[V]) *Element[V] {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	return l.m.InsertAfter(v, mark)
+	return l.dll.InsertAfter(v, mark)
 }
 
 // MoveToFront moves element e to the front of list l.
@@ -108,7 +112,7 @@ func (l *mlist[V]) InsertAfter(v V, mark *Element[V]) *Element[V] {
 func (l *mlist[V]) MoveToFront(e *Element[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	l.m.MoveToFront(e)
+	l.dll.MoveToFront(e)
 }
 
 // MoveToBack moves element e to the back of list l.
@@ -117,7 +121,7 @@ func (l *mlist[V]) MoveToFront(e *Element[V]) {
 func (l *mlist[V]) MoveToBack(e *Element[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	l.m.MoveToBack(e)
+	l.dll.MoveToBack(e)
 }
 
 // MoveBefore moves element e to its new position before mark.
@@ -126,7 +130,7 @@ func (l *mlist[V]) MoveToBack(e *Element[V]) {
 func (l *mlist[V]) MoveBefore(e, mark *Element[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	l.m.MoveBefore(e, mark)
+	l.dll.MoveBefore(e, mark)
 }
 
 // MoveAfter moves element e to its new position after mark.
@@ -135,5 +139,48 @@ func (l *mlist[V]) MoveBefore(e, mark *Element[V]) {
 func (l *mlist[V]) MoveAfter(e, mark *Element[V]) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
-	l.m.MoveAfter(e, mark)
+	l.dll.MoveAfter(e, mark)
+}
+
+// Print prints the contents of the list.
+func (l *mlist[V]) Print() (ret string) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	var str strings.Builder
+	str.WriteString("{}")
+	str.WriteString(reflect.TypeOf(l.dll.root.Value).String())
+	str.WriteString("[")
+	s := ", "
+	for e := l.dll.Front(); e != nil; e = e.Next() {
+		str.WriteString(fmt.Sprint(e.Value))
+		if e.Next() != nil {
+			str.WriteString(s)
+		}
+	}
+	str.WriteString("]")
+
+	ret = str.String()
+	fmt.Println(ret)
+	return ret
+}
+
+// Sort is a trivial, unstable, and poorly-designed implementation that
+// sorts the list according to specified function LessThan.
+// LessThan(v1, v2 V) bool is expected to be a function that returns true iff v1 < v2.
+// If LessThan is spcified as nil, Sort is a no-op.
+func (l *mlist[V]) Sort(LessThan func(v1, v2 V) bool) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+	if LessThan != nil {
+		tmp := make([]V, 0, l.dll.Len())
+		for e := l.dll.Front(); e != nil; e = e.Next() {
+			tmp = append(tmp, e.Value)
+		}
+		sort.Slice(tmp, func(i, j int) bool { return LessThan(tmp[i], tmp[j]) })
+		l.dll.Init()
+		for i := range tmp {
+			l.dll.PushBack(tmp[i])
+		}
+	}
 }
